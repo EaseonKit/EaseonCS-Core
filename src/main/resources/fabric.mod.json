@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "easeon-cs-core",
+	"version": "${version}",
+	"name": "EaseonCs - Core",
+	"description": "A client-side core that serves as the shared foundation for all Easeon modules.",
+	"authors": [
+		"Teron"
+	],
+	"license": "All Rights Reserved",
+	"icon": "assets/easeon-cs-core/icon.png",
+	"environment": "*",
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

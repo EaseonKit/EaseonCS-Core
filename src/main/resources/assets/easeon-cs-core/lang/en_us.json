@@ -1,0 +1,8 @@
+{
+  "easeon.button.save": "Save",
+  "easeon.button.reset": "Reset",
+  "easeon.button.close": "Close",
+  "easeon.button.toggle_on": "§eEnabled",
+  "easeon.button.toggle_off": "§cDisabled",
+  "easeon.button.hotkey.empty": "§8Not Assigned"
+}
