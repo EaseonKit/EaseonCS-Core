@@ -9,7 +9,8 @@
       "ClientTick",
       "GameRendererFov",
       "InGameHud",
-      "GameOptionsMixin"
+      "GameOptionsMixin",
+      "MouseMixin"
     ],
 	"injectors": {
 		"defaultRequire": 1
