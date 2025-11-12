@@ -1,18 +1,26 @@
 {
 	"schemaVersion": 1,
-	"id": "easeon-cs-core",
-	"version": "${version}",
-	"name": "EaseonCs - Core",
-	"description": "A client-side core that serves as the shared foundation for all Easeon modules.",
-	"authors": [
-		"Teron"
-	],
+    "id": "easeon-cs-${mod_package}",
+    "version": "${version}",
+    "name": "EaseonCS - ${mod_name}",
+    "description": "${mod_description}",
+    "authors": [
+      "Teron"
+    ],
+    "contact": {
+      "homepage": "https://github.com/EaseonKit?tab=repositories&q=&type=&language=&sort=name",
+      "sources": "https://github.com/EaseonKit/EaseonCS-${mod_name}",
+      "issues": "https://github.com/EaseonKit/EaseonCS-${mod_name}/issues"
+    },
 	"license": "All Rights Reserved",
-	"icon": "assets/easeon-cs-core/icon.png",
-	"environment": "*",
+	"icon": "assets/easeon/icon.png",
+    "environment": "client",
+    "mixins": [
+      "easeon.cs.core.mixins.json"
+    ],
 	"depends": {
 		"fabricloader": ">=0.17.2",
-		"minecraft": "=1.21.10",
+        "minecraft": "~1.21.9",
 		"java": ">=21"
 	},
 	"suggests": {

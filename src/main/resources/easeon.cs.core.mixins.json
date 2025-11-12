@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"package": "com.easeon.cs.core.mixin",
+	"compatibilityLevel": "JAVA_21",
+    "refmap": "client-easeon.cs.core.teron.fabric-refmap.json",
+    "client": [
+      "ClientInteractBlockUse",
+      "ClientScreenInit",
+      "ClientTick",
+      "GameRendererFov",
+      "InGameHud",
+      "GameOptionsMixin",
+      "MouseMixin"
+    ],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
