@@ -1,21 +1,23 @@
 package com.easeon.cs.core.gui.widget;
 
 import com.easeon.cs.core.config.GuiConfig;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
-public class EaseonButton extends ButtonWidget {
-    public EaseonButton(Text text, int x, PressAction onPress) {
-        super(x, 0,
-            GuiConfig.BUTTON_WIDTH,
-            GuiConfig.WIDGET_HEIGHT,
-            text,
-            onPress,
-            ButtonWidget.DEFAULT_NARRATION_SUPPLIER
-        );
+public class EaseonButton extends Button.Plain {
+    public EaseonButton(Component text, int x, OnPress onPress) {
+        super(x, 0, GuiConfig.BUTTON_WIDTH, GuiConfig.WIDGET_HEIGHT, text, onPress, Button.DEFAULT_NARRATION);
     }
 
-    public EaseonButton(Text text, int x, int w, PressAction onPress) {
-        super(x, 0, w, GuiConfig.WIDGET_HEIGHT, text, onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
+    public EaseonButton(Component text, int x, int w, OnPress onPress) {
+        super(x, 0, w, GuiConfig.WIDGET_HEIGHT, text, onPress, Button.DEFAULT_NARRATION);
+    }
+
+    public static EaseonButton create(Component text, int x, OnPress onPress) {
+        return new EaseonButton(text, x, onPress);
+    }
+
+    public static EaseonButton create(Component text, int x, int w, OnPress onPress) {
+        return new EaseonButton(text, x, w, onPress);
     }
 }

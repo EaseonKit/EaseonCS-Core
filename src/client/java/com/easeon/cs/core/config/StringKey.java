@@ -1,6 +1,6 @@
 package com.easeon.cs.core.config;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public enum StringKey {
     TITLE_SETTINGS("easeon.title.settings"),
@@ -14,6 +14,6 @@ public enum StringKey {
     private final String key;
     StringKey(String key) { this.key = key; }
     public String getKey() { return key; }
-    public Text asText(Object... args) { return Text.translatable(key, args); }
-    public String asString(Object... args) { return Text.translatable(key, args).getString(); }
+    public Component asText(Object... args) { return Component.translatable(key, args); }
+    public String asString(Object... args) { return Component.translatable(key, args).getString(); }
 }

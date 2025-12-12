@@ -1,6 +1,6 @@
 package com.easeon.cs.core.config;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public final class GuiConfig {
     private GuiConfig() {}
@@ -36,7 +36,7 @@ public final class GuiConfig {
     public static final int SCROLL_BAR_BORDER   = 0x80808080;
 
     public static int getResetButtonX() {
-        int width = MinecraftClient.getInstance().getWindow().getScaledWidth();
+        int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         int scrollViewX2 = width - SIDE_VIEW_WIDTH - PADDING * 2;
         return scrollViewX2 - PADDING * 3 - BUTTON_WIDTH;
     }

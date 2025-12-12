@@ -2,17 +2,17 @@ package com.easeon.cs.core.gui.widget;
 
 import com.easeon.cs.core.api.EaseonFeatureType;
 import com.easeon.cs.core.config.model.SliderConfig;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
-public class EaseonSlider extends SliderWidget {
+public class EaseonSlider extends AbstractSliderButton {
     private Runnable onValueChanged;
     private final SliderConfig _config;
     private final EaseonFeatureType _type;
 
     public EaseonSlider(int x, int y, int width, int height, double initial, SliderConfig config, EaseonFeatureType type) {
-        super(x, y, width, height, Text.empty(), initial);
+        super(x, y, width, height, Component.empty(), initial);
         _config = config;
         _type = type;
         updateMessage();  // 초기 텍스트 표시
@@ -30,7 +30,7 @@ public class EaseonSlider extends SliderWidget {
 
         // 0~1 → min~max 변환
         int newVal = (int)Math.round(this.value * (max - min)) + min;
-        _config.Value = MathHelper.clamp(newVal, min, max);
+        _config.Value = Mth.clamp(newVal, min, max);
 
         updateMessage();
         if (onValueChanged != null) {

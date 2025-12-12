@@ -1,8 +1,8 @@
 package com.easeon.cs.core.api.events;
 
 import com.easeon.cs.core.api.definitions.enums.EventPhase;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class EaseonScreenInitClient {
 
     @FunctionalInterface
     public interface ScreenInitRunnable {
-        void run(MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight);
+        void run(Minecraft client, Screen screen, int scaledWidth, int scaledHeight);
     }
 
     public static ScreenInitTask register(ScreenInitRunnable task) {
@@ -53,19 +53,19 @@ public class EaseonScreenInitClient {
         }
     }
 
-    public static void onScreenInitBefore(MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight) {
+    public static void onScreenInitBefore(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
         executeTasks(_beforeTasks, client, screen, scaledWidth, scaledHeight, "BEFORE");
     }
 
-    public static void onScreenInitAfter(MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight) {
+    public static void onScreenInitAfter(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
         executeTasks(_afterTasks, client, screen, scaledWidth, scaledHeight, "AFTER");
     }
 
-    public static void onScreenInit(MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight) {
+    public static void onScreenInit(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
         onScreenInitAfter(client, screen, scaledWidth, scaledHeight);
     }
 
-    private static void executeTasks(List<ScreenInitTask> tasks, MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight, String phase) {
+    private static void executeTasks(List<ScreenInitTask> tasks, Minecraft client, Screen screen, int scaledWidth, int scaledHeight, String phase) {
         for (ScreenInitTask task : tasks) {
             try {
                 task.execute(client, screen, scaledWidth, scaledHeight);
@@ -88,7 +88,7 @@ public class EaseonScreenInitClient {
             return _phase;
         }
 
-        public void execute(MinecraftClient client, Screen screen, int scaledWidth, int scaledHeight) {
+        public void execute(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
             _task.run(client, screen, scaledWidth, scaledHeight);
         }
     }

@@ -1,8 +1,8 @@
 package com.easeon.cs.core.mixin;
 
 import com.easeon.cs.core.api.keybind.EaseonKeyBindingRegistry;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.Options;
+import net.minecraft.client.KeyMapping;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -11,24 +11,24 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameOptions.class)
+@Mixin(Options.class)
 public class GameOptionsMixin {
 
     @Shadow
     @Final
     @Mutable
-    public KeyBinding[] allKeys;
+    public KeyMapping[] keyMappings;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
-        java.util.List<KeyBinding> customKeys = EaseonKeyBindingRegistry.getKeyBindings();
+        java.util.List<KeyMapping> customKeys = EaseonKeyBindingRegistry.getKeyBindings();
         if (!customKeys.isEmpty()) {
-            KeyBinding[] newAllKeys = new KeyBinding[allKeys.length + customKeys.size()];
-            System.arraycopy(allKeys, 0, newAllKeys, 0, allKeys.length);
+            KeyMapping[] newAllKeys = new KeyMapping[keyMappings.length + customKeys.size()];
+            System.arraycopy(keyMappings, 0, newAllKeys, 0, keyMappings.length);
             for (int i = 0; i < customKeys.size(); i++) {
-                newAllKeys[allKeys.length + i] = customKeys.get(i);
+                newAllKeys[keyMappings.length + i] = customKeys.get(i);
             }
-            allKeys = newAllKeys; // ✅ 직접 대입
+            keyMappings = newAllKeys;
         }
     }
 }

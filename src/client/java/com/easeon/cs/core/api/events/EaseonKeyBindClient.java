@@ -1,6 +1,6 @@
 package com.easeon.cs.core.api.events;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ public class EaseonKeyBindClient {
 
     @FunctionalInterface
     public interface KeyBindRunnable {
-        void run(MinecraftClient client);
+        void run(Minecraft client);
     }
 
     public static KeyBindTask register(KeyBindRunnable task) {
@@ -39,11 +39,11 @@ public class EaseonKeyBindClient {
         }
     }
 
-    public static void onEndClientTick(MinecraftClient client) {
+    public static void onEndClientTick(Minecraft client) {
         executeTasks(_tasks, client);
     }
 
-    private static void executeTasks(List<KeyBindTask> tasks, MinecraftClient client) {
+    private static void executeTasks(List<KeyBindTask> tasks, Minecraft client) {
         for (KeyBindTask task : tasks) {
             try {
                 task.execute(client);
@@ -60,7 +60,7 @@ public class EaseonKeyBindClient {
             this._task = task;
         }
 
-        public void execute(MinecraftClient client) {
+        public void execute(Minecraft client) {
             _task.run(client);
         }
     }

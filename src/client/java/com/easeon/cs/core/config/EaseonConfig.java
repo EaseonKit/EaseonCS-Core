@@ -5,23 +5,24 @@ import com.easeon.cs.core.config.model.FeatureStruct;
 import com.easeon.cs.core.config.model.HotkeyConfig;
 import com.easeon.cs.core.config.model.SliderConfig;
 import com.easeon.cs.core.config.model.ToggleConfig;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class EaseonConfig {
-    private static final ObjectMapper mapper = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
 
     public static final Map<EaseonFeatureType, FeatureStruct> configMap = new LinkedHashMap<>();
 
@@ -37,28 +38,35 @@ public class EaseonConfig {
 
     public static void load() {
         try {
-            ObjectNode root = mapper.createObjectNode();
+            JsonObject root = new JsonObject();
             if (CONFIG_FILE.exists()) {
-                root = (ObjectNode) mapper.readTree(CONFIG_FILE);
+                try (FileReader reader = new FileReader(CONFIG_FILE)) {
+                    root = JsonParser.parseReader(reader).getAsJsonObject();
+                }
             }
 
             for (EaseonFeatureType type : EaseonFeatureType.values()) {
                 FeatureStruct struct;
                 if (root.has(type.getId())) {
-                    struct = mapper.treeToValue(root.get(type.getId()), type.getStructClass());
+                    struct = gson.fromJson(root.get(type.getId()), type.getStructClass());
                     struct.applyDefaults();
                 } else {
-                    FeatureStruct defaultStruct = type.createDefault();
+                    // 익명 클래스 문제 해결: createDefault() 결과를 JsonObject로 직접 변환
+                    FeatureStruct def = type.createDefault();
                     try {
-                        String json = mapper.writeValueAsString(defaultStruct);
-                        struct = mapper.readValue(json, type.getStructClass());
+                        JsonObject defObj = new JsonObject();
+                        // 익명 클래스의 부모(실제 Config 클래스) 필드 추출
+                        for (java.lang.reflect.Field field : def.getClass().getSuperclass().getDeclaredFields()) {
+                            field.setAccessible(true);
+                            defObj.add(field.getName(), gson.toJsonTree(field.get(def)));
+                        }
+                        struct = gson.fromJson(defObj, type.getStructClass());
                     } catch (Exception e) {
-                        struct = defaultStruct;
+                        struct = def;
                     }
                 }
                 configMap.put(type, struct);
             }
-
         } catch (Exception e) {
             System.err.println("[Easeon] 설정 로드 실패: " + e.getMessage());
         }
@@ -69,14 +77,17 @@ public class EaseonConfig {
             File parent = CONFIG_FILE.getParentFile();
             if (parent != null && !parent.exists()) parent.mkdirs();
 
-            ObjectNode root = mapper.createObjectNode();
+            JsonObject root = new JsonObject();
             for (EaseonFeatureType type : EaseonFeatureType.values()) {
                 FeatureStruct val = configMap.get(type);
                 if (val != null) {
-                    root.set(type.getId(), mapper.valueToTree(val));
+                    root.add(type.getId(), gson.toJsonTree(val));
                 }
             }
-            Files.write(CONFIG_FILE.toPath(), mapper.writeValueAsBytes(root));
+
+            try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+                gson.toJson(root, writer);
+            }
         } catch (IOException e) {
             System.err.println("[Easeon] 설정 저장 실패: " + e.getMessage());
         }

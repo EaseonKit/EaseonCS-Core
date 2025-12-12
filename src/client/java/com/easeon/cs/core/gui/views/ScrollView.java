@@ -2,8 +2,8 @@ package com.easeon.cs.core.gui.views;
 
 import com.easeon.cs.core.config.GuiConfig;
 import com.easeon.cs.core.gui.common.GuiRenderable;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,8 +22,8 @@ public class ScrollView {
     public int trackX1;
 
     public ScrollView(List<GuiRenderable> scissorWidgets) {
-        var w = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        var h = MinecraftClient.getInstance().getWindow().getScaledHeight();
+        var w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        var h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
         this.x1 = GuiConfig.PADDING;
         this.x2 = w - GuiConfig.SIDE_VIEW_WIDTH - GuiConfig.PADDING * 2;
@@ -59,7 +59,7 @@ public class ScrollView {
         if (isScrollbarHidden()) return;
 
         scrollBarHeight = Math.max((int) (height * (height / (float) contentHeight)), 10);
-        float scrollRatio = MathHelper.clamp(scrollOffset / (float) (contentHeight - height), 0f, 1f);
+        float scrollRatio = Mth.clamp(scrollOffset / (float) (contentHeight - height), 0f, 1f);
         scrollBarY = y1 + (int) ((height - scrollBarHeight) * scrollRatio);
     }
 
@@ -68,11 +68,11 @@ public class ScrollView {
     }
 
     public void scrollBy(float amount) {
-        scrollOffset = MathHelper.clamp(scrollOffset - amount, 0f, getMaxScrollOffset());
+        scrollOffset = Mth.clamp(scrollOffset - amount, 0f, getMaxScrollOffset());
     }
 
     public void scrollToRatio(float ratio) {
-        ratio = MathHelper.clamp(ratio, 0f, 1f);
+        ratio = Mth.clamp(ratio, 0f, 1f);
         scrollOffset = getMaxScrollOffset() * ratio;
     }
 

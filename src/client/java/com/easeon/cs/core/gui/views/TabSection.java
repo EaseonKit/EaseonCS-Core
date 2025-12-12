@@ -4,28 +4,28 @@ import com.easeon.cs.core.api.EaseonFeatureCategory;
 import com.easeon.cs.core.config.GuiConfig;
 import com.easeon.cs.core.gui.EaseonScreen;
 import com.easeon.cs.core.gui.common.GuiRenderable;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TabSection implements GuiRenderable {
-    public final List<ButtonWidget> tabList = new ArrayList<>();
+    public final List<Button> tabList = new ArrayList<>();
 
     public TabSection(EaseonScreen screen) {
         var panels = EaseonFeatureCategory.values();
         var width = screen.scrollView.getWidth() / (panels.length + 1);
         for (var i = 0; i < panels.length; i++) {
             final int index = i;
-            var aBtn = ButtonWidget.builder(Text.translatable(panels[index].getTitle()),
+            var aBtn = Button.builder(Component.translatable(panels[index].getTitle()),
                 btn -> {
                     screen.tabIndex = index;
                     screen.init();
                 }
             )
-            .dimensions(screen.scrollView.x1 + index * width, GuiConfig.PADDING, width, GuiConfig.WIDGET_HEIGHT)
+            .bounds(screen.scrollView.x1 + index * width, GuiConfig.PADDING, width, GuiConfig.WIDGET_HEIGHT)
             .build();
             aBtn.active = screen.tabIndex != index;
             tabList.add(aBtn);
@@ -37,7 +37,7 @@ public class TabSection implements GuiRenderable {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         for (var tab : tabList) {
             tab.render(context, mouseX, mouseY, delta);
         }

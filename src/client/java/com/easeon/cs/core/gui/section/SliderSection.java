@@ -10,10 +10,11 @@ import com.easeon.cs.core.gui.EaseonScreen;
 import com.easeon.cs.core.gui.common.GuiRenderable;
 import com.easeon.cs.core.gui.widget.EaseonButton;
 import com.easeon.cs.core.gui.widget.EaseonSlider;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
 public class SliderSection implements GuiRenderable {
     private final EaseonScreen _screen;
@@ -22,8 +23,8 @@ public class SliderSection implements GuiRenderable {
     private final SliderConfig _config;
 
     public final EaseonSlider slider;
-    public final ButtonWidget toggleButton;
-    private final ButtonWidget resetButton;
+    public final Button toggleButton;
+    private final Button resetButton;
 
     private int _y = 0;
 
@@ -77,22 +78,22 @@ public class SliderSection implements GuiRenderable {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        var tr    = MinecraftClient.getInstance().textRenderer;
-        int fontH = tr.fontHeight;
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        Font font = Minecraft.getInstance().font;
+        int fontH = font.lineHeight;
         int rowH  = this.toggleButton.getHeight();  // WIDGET_HEIGHT 와 동일
         int textY = _y + (rowH - fontH) / 2;
 
-        context.drawText(tr, this._type.getTitle(), GuiConfig.PADDING * 3, textY, GuiConfig.FONT_COLOR, GuiConfig.FONT_SHADOW);
+        context.drawString(font, this._type.getTitle(), GuiConfig.PADDING * 3, textY, GuiConfig.FONT_COLOR, GuiConfig.FONT_SHADOW);
 
         this.slider.render(context, mouseX, mouseY, delta);
         this.toggleButton.render(context, mouseX, mouseY, delta);
         this.resetButton.render(context, mouseX, mouseY, delta);
     }
 
-    private Text getToggleButtonText()
+    private Component getToggleButtonText()
     {
-        return Text.translatable(
+        return Component.translatable(
             this._config.Enabled
                 ? StringKey.BUTTON_TOGGLE_ON.getKey()
                 : StringKey.BUTTON_TOGGLE_OFF.getKey()

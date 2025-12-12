@@ -1,11 +1,11 @@
 package com.easeon.cs.core.api.events;
 
 import com.easeon.cs.core.api.definitions.enums.EventPhase;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.world.World;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.Level;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class EaseonBlockUseClient {
 
     @FunctionalInterface
     public interface BlockUseRunnable {
-        ActionResult run(ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit);
+        InteractionResult run(LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit);
     }
 
     public static BlockUseTask register(BlockUseRunnable task) {
@@ -56,30 +56,30 @@ public class EaseonBlockUseClient {
         }
     }
 
-    public static ActionResult onBlockUseBefore(ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit) {
+    public static InteractionResult onBlockUseBefore(LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit) {
         return executeTasks(_beforeTasks, player, world, hand, hit, "BEFORE");
     }
 
-    public static ActionResult onBlockUseAfter(ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit) {
+    public static InteractionResult onBlockUseAfter(LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit) {
         return executeTasks(_afterTasks, player, world, hand, hit, "AFTER");
     }
 
-    public static ActionResult onBlockUse(ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit) {
+    public static InteractionResult onBlockUse(LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit) {
         return onBlockUseAfter(player, world, hand, hit);
     }
 
-    private static ActionResult executeTasks(List<BlockUseTask> tasks, ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit, String phase) {
+    private static InteractionResult executeTasks(List<BlockUseTask> tasks, LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit, String phase) {
         for (BlockUseTask task : tasks) {
             try {
-                ActionResult result = task.execute(player, world, hand, hit);
-                if (result != ActionResult.PASS) {
+                InteractionResult result = task.execute(player, world, hand, hit);
+                if (result != InteractionResult.PASS) {
                     return result;
                 }
             } catch (Exception e) {
 //                logger.error("Error in block use task ({}): {}", phase, e);
             }
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     public static class BlockUseTask {
@@ -95,7 +95,7 @@ public class EaseonBlockUseClient {
             return _phase;
         }
 
-        public ActionResult execute(ClientPlayerEntity player, World world, Hand hand, BlockHitResult hit) {
+        public InteractionResult execute(LocalPlayer player, Level world, InteractionHand hand, BlockHitResult hit) {
             return _task.run(player, world, hand, hit);
         }
     }

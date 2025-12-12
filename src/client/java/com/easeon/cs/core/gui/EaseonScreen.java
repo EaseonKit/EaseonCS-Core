@@ -3,7 +3,6 @@ package com.easeon.cs.core.gui;
 import com.easeon.cs.core.api.EaseonFeatureType;
 import com.easeon.cs.core.config.EaseonConfig;
 import com.easeon.cs.core.config.GuiConfig;
-import com.easeon.cs.core.config.StringKey;
 import com.easeon.cs.core.config.model.FeatureStruct;
 import com.easeon.cs.core.config.model.HotkeyConfig;
 import com.easeon.cs.core.config.model.SliderConfig;
@@ -17,21 +16,22 @@ import com.easeon.cs.core.gui.views.SideView;
 import com.easeon.cs.core.gui.views.TabSection;
 import com.easeon.cs.core.gui.widget.EaseonSlider;
 import com.easeon.cs.core.gui.widget.SectionHeader;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class EaseonScreen extends Screen
 {
-    public EaseonScreen() { super(Text.translatable(EaseonConfig.modName)); }
+    public EaseonScreen() { super(Component.translatable(EaseonConfig.modName)); }
 
     // Tab
     public int tabIndex = 0;
@@ -88,7 +88,7 @@ public class EaseonScreen extends Screen
 
     // UI Render *******************************************************************************************************
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         // Render Minecraft's default background (e.g., dirt texture, screen fade)
         context.fill(0, 0, this.width, this.height, 0xC0101010);
 
@@ -117,10 +117,10 @@ public class EaseonScreen extends Screen
 
         // Draw the screen title centered above the side panel
         int titleX = this.width - (GuiConfig.SIDE_VIEW_WIDTH / 2) - GuiConfig.PADDING;
-        context.drawCenteredTextWithShadow(textRenderer, this.title, titleX, GuiConfig.PADDING * 4 + GuiConfig.WIDGET_HEIGHT, GuiConfig.FONT_COLOR);
+        context.drawCenteredString(Minecraft.getInstance().font, this.title, titleX, GuiConfig.PADDING * 4 + GuiConfig.WIDGET_HEIGHT, GuiConfig.FONT_COLOR);
     }
 
-    private void renderScissorWidgets(DrawContext context, int mouseX, int mouseY, float delta) {
+    private void renderScissorWidgets(GuiGraphics context, int mouseX, int mouseY, float delta) {
         var row = 0;
         for (GuiRenderable widget : widgets) {
             int baseY = GuiConfig.PADDING * 2 + row * (GuiConfig.WIDGET_HEIGHT + GuiConfig.SPACING)
@@ -138,7 +138,7 @@ public class EaseonScreen extends Screen
         }
     }
 
-    private void renderScroll(DrawContext context) {
+    private void renderScroll(GuiGraphics context) {
         if (scrollView.isScrollbarHidden()) return;
 
         scrollView.updateScrollBarMetrics();
@@ -150,15 +150,17 @@ public class EaseonScreen extends Screen
 
 
     // Event Handler ***************************************************************************************************
-    @Override public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
         scrollView.scrollBy((float)(vertical * 20));
         return true;
     }
 
-    @Override public boolean mouseClicked(Click click, boolean doubled) {
-        var mouseX = click.x();
-        var mouseY = click.y();
-        var button = click.button();
+    @Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubled) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+        int button = mouseButtonEvent.button();
 
         if (tabSection != null && !tabSection.tabList.isEmpty()) {
             var first = tabSection.tabList.getFirst();
@@ -177,7 +179,7 @@ public class EaseonScreen extends Screen
 
                 // 버튼 안쪽이면 탭 클릭 처리
                 for (var tab : tabSection.tabList) {
-                    if (tab.mouseClicked(click, doubled)) return true;
+                    if (tab.mouseClicked(mouseButtonEvent, doubled)) return true;
                 }
 
                 // 빈 영역 클릭이면 아무것도 안 하고 소비만 함
@@ -193,35 +195,36 @@ public class EaseonScreen extends Screen
             scrollView.beginDragging(mouseY);
             return true;
         }
-        return super.mouseClicked(click, doubled);
+        return super.mouseClicked(mouseButtonEvent, doubled);
     }
 
-    @Override public boolean mouseDragged(Click click, double offsetX, double offsetY) {
-        var mouseY = click.y();
-
+    @Override
+    public boolean mouseDragged(@NotNull MouseButtonEvent mouseButtonEvent, double dragX, double dragY) {
         if (scrollView.isDragging) {
+            double mouseY = mouseButtonEvent.y();
             float ratio = scrollView.getScrollRatioFromMouse(mouseY);
             scrollView.scrollToRatio(ratio);
             return true;
         }
-        return super.mouseDragged(click, offsetX, offsetY);
+        return super.mouseDragged(mouseButtonEvent, dragX, dragY);
     }
 
-    @Override public boolean mouseReleased(Click click) {
+    @Override
+    public boolean mouseReleased(@NotNull MouseButtonEvent mouseButtonEvent) {
         scrollView.endDragging();
-        return super.mouseReleased(click);
+        return super.mouseReleased(mouseButtonEvent);
     }
 
     // 단축키 변경 처리
     public HotkeySection activeCaptureSection = null;
 
     @Override
-    public boolean keyPressed(KeyInput keyInput) {
-        var keyCode = keyInput.getKeycode();
-        var modifiers = keyInput.modifiers();
+    public boolean keyPressed(KeyEvent keyEvent) {
+        var keyCode = keyEvent.key();
+        var modifiers = keyEvent.modifiers();
 
         if (activeCaptureSection == null) {
-            return super.keyPressed(keyInput);
+            return super.keyPressed(keyEvent);
         }
         // keyCode, scanCode, modifiers
         // ESC 키는 캡처 취소 용도로 사용
@@ -238,7 +241,7 @@ public class EaseonScreen extends Screen
         || keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL
         || keyCode == GLFW.GLFW_KEY_LEFT_ALT
         || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) {
-            return super.keyPressed(keyInput);
+            return super.keyPressed(keyEvent);
         }
 
         // 유효한 키 입력이면 (GLFW_KEY_UNKNOWN은 제외)
@@ -259,7 +262,7 @@ public class EaseonScreen extends Screen
 
 
     // UI Setup ********************************************************************************************************
-    public <T extends ButtonWidget> void registerChild(T widget) { super.addDrawableChild(widget); }
-    public <T extends EaseonSlider> void registerChild2(T widget) { super.addDrawableChild(widget); }
-    @Override public boolean shouldPause() { return true; }
+    public <T extends Button> void registerChild(T widget) { super.addRenderableWidget(widget); }
+    public <T extends EaseonSlider> void registerChild2(T widget) { super.addRenderableWidget(widget); }
+    @Override public boolean shouldCloseOnEsc() { return true; }
 }

@@ -8,8 +8,8 @@ import com.easeon.cs.core.config.EaseonConfig;
 import com.easeon.cs.core.config.model.HotkeyConfig;
 import com.easeon.cs.core.config.model.ToggleConfig;
 import com.easeon.cs.core.config.model.SliderConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 import java.util.function.Supplier;
 
@@ -41,7 +41,7 @@ public class EaseonClientCore {
     }
 
     public static void openSettingsScreen() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         client.execute(() -> client.setScreen(getSettingsScreen()));
     }
 

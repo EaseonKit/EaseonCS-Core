@@ -1,7 +1,7 @@
 package com.easeon.cs.core.api.events;
 
 import com.easeon.cs.core.api.definitions.enums.EventPhase;
-import net.minecraft.client.render.Camera;
+import net.minecraft.client.Camera;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class EaseonFovClient {
 
     @FunctionalInterface
     public interface FovRunnable {
-        float run(Camera camera, float tickDelta, boolean changingFov, float originalFov);
+        double run(Camera camera, float tickDelta, boolean changingFov, double originalFov);
     }
 
     public static FovTask register(FovRunnable task) {
@@ -52,23 +52,23 @@ public class EaseonFovClient {
         }
     }
 
-    public static float onFovBefore(Camera camera, float tickDelta, boolean changingFov, float originalFov) {
+    public static double onFovBefore(Camera camera, float tickDelta, boolean changingFov, double originalFov) {
         return executeTasks(_beforeTasks, camera, tickDelta, changingFov, originalFov, "BEFORE");
     }
 
-    public static float onFovAfter(Camera camera, float tickDelta, boolean changingFov, float originalFov) {
+    public static double onFovAfter(Camera camera, float tickDelta, boolean changingFov, double originalFov) {
         return executeTasks(_afterTasks, camera, tickDelta, changingFov, originalFov, "AFTER");
     }
 
-    public static float onFov(Camera camera, float tickDelta, boolean changingFov, float originalFov) {
+    public static double onFov(Camera camera, float tickDelta, boolean changingFov, double originalFov) {
         return onFovAfter(camera, tickDelta, changingFov, originalFov);
     }
 
-    private static float executeTasks(List<FovTask> tasks, Camera camera, float tickDelta, boolean changingFov, float currentFov, String phase) {
-        float resultFov = currentFov;
+    private static double executeTasks(List<FovTask> tasks, Camera camera, float tickDelta, boolean changingFov, double currentFov, String phase) {
+        double resultFov = currentFov;
         for (FovTask task : tasks) {
             try {
-                float newFov = task.execute(camera, tickDelta, changingFov, resultFov);
+                double newFov = task.execute(camera, tickDelta, changingFov, resultFov);
                 if (newFov != resultFov) {
                     resultFov = newFov;
                 }
@@ -92,7 +92,7 @@ public class EaseonFovClient {
             return _phase;
         }
 
-        public float execute(Camera camera, float tickDelta, boolean changingFov, float originalFov) {
+        public double execute(Camera camera, float tickDelta, boolean changingFov, double originalFov) {
             return _task.run(camera, tickDelta, changingFov, originalFov);
         }
     }

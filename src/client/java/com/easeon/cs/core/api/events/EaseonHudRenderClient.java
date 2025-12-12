@@ -1,8 +1,8 @@
 package com.easeon.cs.core.api.events;
 
 import com.easeon.cs.core.api.definitions.enums.EventPhase;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.DeltaTracker;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class EaseonHudRenderClient {
 
     @FunctionalInterface
     public interface HudRenderRunnable {
-        void run(DrawContext drawContext, RenderTickCounter tickCounter);
+        void run(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
     }
 
     public static HudRenderTask register(HudRenderRunnable task) {
@@ -53,22 +53,22 @@ public class EaseonHudRenderClient {
         }
     }
 
-    public static void onHudRenderBefore(DrawContext drawContext, RenderTickCounter tickCounter) {
-        executeTasks(_beforeTasks, drawContext, tickCounter, "BEFORE");
+    public static void onHudRenderBefore(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        executeTasks(_beforeTasks, guiGraphics, deltaTracker, "BEFORE");
     }
 
-    public static void onHudRenderAfter(DrawContext drawContext, RenderTickCounter tickCounter) {
-        executeTasks(_afterTasks, drawContext, tickCounter, "AFTER");
+    public static void onHudRenderAfter(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        executeTasks(_afterTasks, guiGraphics, deltaTracker, "AFTER");
     }
 
-    public static void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
-        onHudRenderAfter(drawContext, tickCounter);
+    public static void onHudRender(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        onHudRenderAfter(guiGraphics, deltaTracker);
     }
 
-    private static void executeTasks(List<HudRenderTask> tasks, DrawContext drawContext, RenderTickCounter tickCounter, String phase) {
+    private static void executeTasks(List<HudRenderTask> tasks, GuiGraphics guiGraphics, DeltaTracker deltaTracker, String phase) {
         for (HudRenderTask task : tasks) {
             try {
-                task.execute(drawContext, tickCounter);
+                task.execute(guiGraphics, deltaTracker);
             } catch (Exception e) {
 //                logger.error("Error in HUD render task ({}): {}", phase, e);
             }
@@ -88,8 +88,8 @@ public class EaseonHudRenderClient {
             return _phase;
         }
 
-        public void execute(DrawContext drawContext, RenderTickCounter tickCounter) {
-            _task.run(drawContext, tickCounter);
+        public void execute(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+            _task.run(guiGraphics, deltaTracker);
         }
     }
 }

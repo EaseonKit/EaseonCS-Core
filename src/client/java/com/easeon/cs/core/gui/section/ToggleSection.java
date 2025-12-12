@@ -9,10 +9,11 @@ import com.easeon.cs.core.config.model.ToggleConfig;
 import com.easeon.cs.core.gui.EaseonScreen;
 import com.easeon.cs.core.gui.common.GuiRenderable;
 import com.easeon.cs.core.gui.widget.EaseonButton;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
 public class ToggleSection implements GuiRenderable {
     private final EaseonScreen _screen;
@@ -20,8 +21,8 @@ public class ToggleSection implements GuiRenderable {
     private final EaseonFeatureType _type;
     private final ToggleConfig _config;
 
-    public final ButtonWidget toggleButton;
-    public final ButtonWidget resetButton;
+    public final Button toggleButton;
+    public final Button resetButton;
     private int _y = 0;
 
     public ToggleSection(EaseonScreen screen, EaseonFeatureType type)
@@ -54,7 +55,7 @@ public class ToggleSection implements GuiRenderable {
         refreshUI();
     }
 
-    private Text getToggleButtonText()
+    private Component getToggleButtonText()
     {
         return this._config.Enabled
             ? StringKey.BUTTON_TOGGLE_ON.asText()
@@ -69,13 +70,13 @@ public class ToggleSection implements GuiRenderable {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        var tr = MinecraftClient.getInstance().textRenderer;
-        int fontH = tr.fontHeight;
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        Font font = Minecraft.getInstance().font;
+        int fontH = font.lineHeight;
         int rowH   = toggleButton.getHeight();  // WIDGET_HEIGHT 와 동일
         int textY = _y + (rowH - fontH) / 2;
 
-        context.drawText(tr, this._type.getTitle(), GuiConfig.PADDING * 3, textY, GuiConfig.FONT_COLOR, GuiConfig.FONT_SHADOW);
+        context.drawString(font, this._type.getTitle(), GuiConfig.PADDING * 3, textY, GuiConfig.FONT_COLOR, GuiConfig.FONT_SHADOW);
 
         toggleButton.render(context, mouseX, mouseY, delta);
         resetButton.render(context, mouseX, mouseY, delta);

@@ -1,12 +1,16 @@
 package com.easeon.cs.core.api;
 
 import com.easeon.cs.core.config.model.FeatureStruct;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minecraft.text.Text;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import net.minecraft.network.chat.Component;
+
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.function.Supplier;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 public final class EaseonFeatureType {
     private final String id;
@@ -55,14 +59,14 @@ public final class EaseonFeatureType {
             Supplier<com.easeon.cs.core.config.model.HotkeyConfig> defaultSupplier) {
 
         REGISTRY.computeIfAbsent(id,
-            k -> new EaseonFeatureType(
-                id,
-                name,
-                com.easeon.cs.core.config.model.HotkeyConfig.class,
-                category,
-                subCategory,
-                defaultSupplier::get,
-                0, 0, null));
+                k -> new EaseonFeatureType(
+                        id,
+                        name,
+                        com.easeon.cs.core.config.model.HotkeyConfig.class,
+                        category,
+                        subCategory,
+                        defaultSupplier::get,
+                        0, 0, null));
     }
 
 
@@ -75,14 +79,14 @@ public final class EaseonFeatureType {
             Supplier<com.easeon.cs.core.config.model.ToggleConfig> defaultSupplier) {
 
         REGISTRY.computeIfAbsent(id,
-            k -> new EaseonFeatureType(
-                id,
-                name,
-                com.easeon.cs.core.config.model.ToggleConfig.class,
-                category,
-                subCategory,
-                defaultSupplier::get,
-                0, 0, null));
+                k -> new EaseonFeatureType(
+                        id,
+                        name,
+                        com.easeon.cs.core.config.model.ToggleConfig.class,
+                        category,
+                        subCategory,
+                        defaultSupplier::get,
+                        0, 0, null));
     }
 
     // Slider 전용 등록
@@ -97,16 +101,16 @@ public final class EaseonFeatureType {
             String ValueFormat) {
 
         REGISTRY.computeIfAbsent(id,
-            k -> new EaseonFeatureType(
-                id,
-                name,
-                com.easeon.cs.core.config.model.SliderConfig.class,
-                category,
-                subCategory,
-                defaultSupplier::get,
-                sliderMinValue,
-                sliderMaxValue,
-                ValueFormat));
+                k -> new EaseonFeatureType(
+                        id,
+                        name,
+                        com.easeon.cs.core.config.model.SliderConfig.class,
+                        category,
+                        subCategory,
+                        defaultSupplier::get,
+                        sliderMinValue,
+                        sliderMaxValue,
+                        ValueFormat));
     }
 
 
@@ -126,12 +130,12 @@ public final class EaseonFeatureType {
         return subCategory;
     }
 
-    public Text getSliderText(double value) {
-        return Text.translatable(ValueFormat, value);
+    public Component getSliderText(double value) {
+        return Component.translatable(ValueFormat, value);
     }
 
-    public Text getTitle() {
-        return Text.translatable(title);
+    public Component getTitle() {
+        return Component.translatable(title);
     }
 
     public int getCategoryIndex() {
@@ -158,17 +162,28 @@ public final class EaseonFeatureType {
     public boolean isChanged(FeatureStruct current) {
         if (current == null || defaultSupplier == null) return false;
 
-        ObjectMapper mapper = new ObjectMapper();
-
-        // 기본값 생성
+        Gson gson = new Gson();
         FeatureStruct def = defaultSupplier.get();
         if (def == null) return false;
 
-        // 두 객체를 JsonNode로 변환
-        JsonNode defaultNode = mapper.valueToTree(def);
-        JsonNode currentNode = mapper.valueToTree(current);
+        // 익명 클래스 필드 강제 추출 (Gson 우회)
+        JsonObject defaultJsonObj = new JsonObject();
+        try {
+            for (Field field : def.getClass().getSuperclass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(def);
+                defaultJsonObj.add(field.getName(), gson.toJsonTree(value));
+            }
+        } catch (Exception e) {
+            // 리플렉션 실패 시 기본 방식 사용
+            return false;
+        }
 
-        // 깊은 비교
-        return !Objects.equals(defaultNode, currentNode);
+        JsonElement currentElement = gson.toJsonTree(current);
+
+        System.out.println("Default JSON: " + gson.toJson(defaultJsonObj));
+        System.out.println("Current JSON: " + gson.toJson(currentElement));
+
+        return !Objects.equals(defaultJsonObj, currentElement);
     }
 }
